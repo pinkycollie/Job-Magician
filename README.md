@@ -1,6 +1,6 @@
 # Job-Magician
 
-**Deaf-First Vocational Rehabilitation and Workforce Development Platform**
+**Deaf-First Vocational Rehabilitation and Workforce Development Intelligent Distributed System**
 
 Part of the [360 Magicians](https://github.com/360magicians) ecosystem and [VR4Deaf](https://github.com/pinkycollie/vr4deaf) initiative.
 
