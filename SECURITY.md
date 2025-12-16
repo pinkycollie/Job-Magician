@@ -55,10 +55,12 @@ If you discover a security vulnerability, please report it to us responsibly:
 ### Infrastructure Security
 
 #### Hosting & Deployment
-- **Platform**: Vercel with enterprise security features
-- **CDN**: Global edge network with DDoS protection
-- **SSL/TLS**: Automatic certificate management and renewal
+- **Deployment Model**: Standalone Next.js application with flexible hosting options
+- **Infrastructure**: Self-hosted or cloud-based (AWS, GCP, Azure, DigitalOcean)
+- **CDN**: CloudFlare, AWS CloudFront, or similar for global content delivery
+- **SSL/TLS**: Let's Encrypt or commercial certificates with automated renewal
 - **Environment Isolation**: Separate production, staging, and development environments
+- **Container Support**: Docker and Kubernetes deployment options
 
 #### Monitoring & Logging
 - Real-time application monitoring
