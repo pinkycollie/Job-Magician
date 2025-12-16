@@ -31,7 +31,7 @@ export function ServiceIntegration() {
           onClick={() => setActiveTab("magician")}
           className="flex-1"
         >
-          360 Business Magician
+          Job-Magician (360 Magicians)
         </Button>
       </div>
 
@@ -113,13 +113,13 @@ export function ServiceIntegration() {
             <div className="w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center">
               <img
                 src="/placeholder.svg?height=80&width=80"
-                alt="360 Business Magician Logo"
+                alt="Job-Magician Logo"
                 className="rounded-full"
               />
             </div>
           </div>
 
-          <h3 className="text-xl font-semibold text-center mb-4">360 Business Magician Services</h3>
+          <h3 className="text-xl font-semibold text-center mb-4">Job-Magician Services (360 Magicians)</h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
@@ -169,7 +169,7 @@ export function ServiceIntegration() {
 
           <div className="flex justify-center mt-4">
             <Button variant="outline" className="flex items-center gap-2">
-              Learn More About 360 Business Magician <ExternalLink className="h-4 w-4" />
+              Learn More About Job-Magician <ExternalLink className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -191,7 +191,7 @@ export function ServiceIntegration() {
             <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center">
               <img
                 src="/placeholder.svg?height=60&width=60"
-                alt="360 Business Magician Logo"
+                alt="Job-Magician Logo"
                 className="rounded-full"
               />
             </div>
@@ -204,7 +204,7 @@ export function ServiceIntegration() {
               <CardContent className="p-4">
                 <h4 className="font-medium mb-2">Streamlined Access</h4>
                 <p className="text-sm">
-                  Single point of entry to both Texas Workforce Solutions and 360 Business Magician services
+                  Single point of entry to both Texas Workforce Solutions and Job-Magician services
                 </p>
                 <Badge variant="secondary" className="mt-2">
                   TWS Resource
@@ -219,7 +219,7 @@ export function ServiceIntegration() {
                   Comprehensive case management with specialized vocational rehabilitation expertise
                 </p>
                 <Badge variant="secondary" className="mt-2">
-                  360 Business Magician
+                  Job-Magician
                 </Badge>
               </CardContent>
             </Card>
@@ -240,7 +240,7 @@ export function ServiceIntegration() {
             <ol className="list-decimal pl-5 space-y-2">
               <li>Client registers through the integrated platform</li>
               <li>Assessment determines eligibility for Texas Workforce Solutions programs</li>
-              <li>360 Business Magician provides specialized vocational rehabilitation services</li>
+              <li>Job-Magician provides specialized vocational rehabilitation services</li>
               <li>Job specialists coordinate resources from both systems</li>
               <li>Unified tracking system monitors progress and outcomes</li>
             </ol>

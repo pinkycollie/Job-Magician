@@ -12,16 +12,16 @@ export default function Home() {
       <Header />
       <main className="container mx-auto px-4 py-8">
         <section className="mb-10">
-          <h1 className="text-4xl font-bold text-center mb-2 text-primary">360 Business Magician</h1>
+          <h1 className="text-4xl font-bold text-center mb-2 text-primary">Job-Magician</h1>
           <p className="text-xl text-center text-muted-foreground mb-8">
-            Vocational Rehabilitation Services Powered by Texas Workforce Solutions
+            Deaf-First Vocational Rehabilitation & Workforce Development Platform
           </p>
 
           <Card className="border-primary/20 shadow-lg">
             <CardHeader className="bg-primary/5">
-              <CardTitle className="text-2xl">Integrated Services Platform</CardTitle>
+              <CardTitle className="text-2xl">Integrated Workforce Solutions Platform</CardTitle>
               <CardDescription>
-                Connecting job seekers with Texas Workforce Solutions resources through 360 Business Magician
+                Connecting job seekers with Texas Workforce Solutions through Job-Magician (360 Magicians)
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
