@@ -4,7 +4,8 @@
 
 Part of the [360 Magicians](https://github.com/360magicians) ecosystem and [VR4Deaf](https://github.com/pinkycollie/vr4deaf) initiative.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com)
+[![Built with Next.js](https://img.shields.io/badge/Built%20with-Next.js-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
+[![360 Magicians](https://img.shields.io/badge/360-Magicians-purple?style=for-the-badge)](https://github.com/360magicians)
 
 ## Overview
 
@@ -47,10 +48,16 @@ As part of 360 Magicians, Job-Magician embodies a "Deaf-First" approach to workf
 
 ## Tech Stack
 
-- **Framework**: Next.js 15.2 with React 19
+### Frontend (Heavy Processes)
+- **Framework**: Next.js 15.5+ (Standalone) with React 19
 - **UI**: Tailwind CSS with Radix UI components
 - **Language**: TypeScript
-- **Deployment**: Vercel
+- **Build**: Next.js standalone output for production
+
+### 360 Magicians Ecosystem Architecture
+- **Primary Backend**: Deno-based (in progress)
+- **Frontend Strategy**: Next.js for complex UI and heavier frontend processes
+- **Integration**: Seamless interoperability between Deno backend and Next.js frontend
 
 ## Getting Started
 
@@ -77,9 +84,25 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 ### Build for Production
 
 ```bash
-pnpm build
-pnpm start
+# Build standalone output
+npm run build
+
+# Start production server
+npm start
+
+# Or use standalone output directly
+node .next/standalone/server.js
 ```
+
+### Deployment Options
+
+Job-Magician is designed as a standalone application and can be deployed to:
+- Self-hosted infrastructure
+- Cloud platforms (AWS, Google Cloud, Azure)
+- Container platforms (Docker, Kubernetes)
+- Edge computing platforms
+
+The application uses Next.js standalone output for optimal performance and minimal dependencies.
 
 ## Compliance & Standards
 
