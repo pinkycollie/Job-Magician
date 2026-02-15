@@ -166,8 +166,8 @@ Job-Magician is designed to meet all applicable state and federal workforce deve
 This compliance framework is reviewed annually and updated as regulations change. Last updated: December 2025.
 
 For questions about compliance, contact:
-- Compliance Officer: compliance@job-magician.org
-- Privacy Officer: privacy@job-magician.org
+- Compliance Officer: vacant
+- Privacy Officer: vacant
 
 ## References
 
