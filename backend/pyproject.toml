@@ -1,0 +1,27 @@
+[project]
+name = "mbtq-backend"
+version = "0.1.0"
+description = "MBTQ Lifecycle System Backend with GCP AI"
+requires-python = ">=3.9"
+dependencies = [
+    "fastapi==0.109.0",
+    "uvicorn==0.27.0",
+    "supabase==2.4.2",
+    "python-dotenv==1.0.0",
+]
+
+[project.optional-dependencies]
+# GCP AI dependencies for heavy compute workloads
+gcp = [
+    "google-genai>=1.0.0",
+    "google-cloud-aiplatform>=1.40.0",
+]
+# All dependencies including GCP AI
+all = [
+    "google-genai>=1.0.0",
+    "google-cloud-aiplatform>=1.40.0",
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"

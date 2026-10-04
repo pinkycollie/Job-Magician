@@ -1,379 +1,347 @@
-# Architecture Overview
+# MBTQ Lifecycle System - Architecture
 
-## 360 Magicians Ecosystem Architecture
-
-Job-Magician is part of the larger 360 Magicians ecosystem, designed with a modern, scalable architecture.
-
-### System Architecture
+## System Overview
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    360 Magicians Ecosystem                   │
-├─────────────────────────────────────────────────────────────┤
-│                                                               │
-│  ┌─────────────────┐         ┌──────────────────┐          │
-│  │   Job-Magician  │◄────────┤  Deno Backend    │          │
-│  │   (Next.js)     │         │  (In Progress)   │          │
-│  │   Frontend      │         │                  │          │
-│  └─────────────────┘         └──────────────────┘          │
-│         │                             │                      │
-│         │                             │                      │
-│         ▼                             ▼                      │
-│  ┌──────────────────────────────────────────────┐          │
-│  │         Texas Workforce Solutions API        │          │
-│  └──────────────────────────────────────────────┘          │
-│                                                               │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │   VR4Deaf    │  │  PinkSync    │  │  DeafAuth    │     │
-│  │  Integration │  │  Integration │  │  Integration │     │
-│  └──────────────┘  └──────────────┘  └──────────────┘     │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                         Browser                                   │
+└────────────────┬─────────────────────────────────────────────────┘
+                 │
+                 │ HTTP/HTTPS
+                 │
+┌────────────────▼─────────────────────────────────────────────────┐
+│                      Vercel (vercel.dev)                          │
+│                                                                    │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │        Frontend Service (port 3000)                         │ │
+│  │        Next.js 16 + React 19                               │ │
+│  │                                                              │ │
+│  │  ┌─────────────────────────────────────────────────────┐  │ │
+│  │  │  Pages:                                             │  │ │
+│  │  │  - / (home - "Open Dashboard" link)                 │  │ │
+│  │  │  - /lifecycle (main dashboard)                      │  │ │
+│  │  │    * Input form for new items                       │  │ │
+│  │  │    * List all items with stage buttons              │  │ │
+│  │  │    * Color-coded by stage                           │  │ │
+│  │  └─────────────────────────────────────────────────────┘  │ │
+│  │                                                              │ │
+│  │  ┌─────────────────────────────────────────────────────┐  │ │
+│  │  │  State Management:                                  │  │ │
+│  │  │  - useState for items, loading, error               │  │ │
+│  │  │  - Direct API calls via fetch()                     │  │ │
+│  │  │  - Auto-refresh after mutations                     │  │ │
+│  │  └─────────────────────────────────────────────────────┘  │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+│                                                                    │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │        API Route Prefix: /api                              │ │
+│  │        (Proxied to Backend Service)                        │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+│                      ↓ HTTP Proxy                                  │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │        Backend Service (internal port)                      │ │
+│  │        FastAPI (Python)                                     │ │
+│  │                                                              │ │
+│  │  ┌─────────────────────────────────────────────────────┐  │ │
+│  │  │  Endpoints:                                         │  │ │
+│  │  │  - GET  /health                                     │  │ │
+│  │  │  - GET  /lifecycle/list                             │  │ │
+│  │  │  - POST /lifecycle/create                           │  │ │
+│  │  │  - POST /lifecycle/update-stage                     │  │ │
+│  │  └─────────────────────────────────────────────────────┘  │ │
+│  │                                                              │ │
+│  │  ┌─────────────────────────────────────────────────────┐  │ │
+│  │  │  CORS Middleware:                                   │  │ │
+│  │  │  - Allows all origins (*)                           │  │ │
+│  │  │  - Allows all methods (GET, POST, etc)              │  │ │
+│  │  │  - Allows all headers                               │  │ │
+│  │  └─────────────────────────────────────────────────────┘  │ │
+│  │                                                              │ │
+│  │  ┌─────────────────────────────────────────────────────┐  │ │
+│  │  │  Request Validation:                                │  │ │
+│  │  │  - Pydantic models for type safety                  │  │ │
+│  │  │  - LifecycleItemCreate (title, workflow_id, data)   │  │ │
+│  │  │  - LifecycleItemUpdate (id, stage)                  │  │ │
+│  │  └─────────────────────────────────────────────────────┘  │ │
+│  │                                                              │ │
+│  │  ┌─────────────────────────────────────────────────────┐  │ │
+│  │  │  Error Handling:                                    │  │ │
+│  │  │  - HTTPException for API errors                     │  │ │
+│  │  │  - Try/catch for database errors                    │  │ │
+│  │  │  - 400/500 status codes                             │  │ │
+│  │  └─────────────────────────────────────────────────────┘  │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+└────────────────┬─────────────────────────────────────────────────┘
+                 │
+                 │ SQL Queries
+                 │
+┌────────────────▼─────────────────────────────────────────────────┐
+│                   Supabase (Cloud)                                │
+│                                                                    │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │     PostgreSQL Database                                     │ │
+│  │                                                              │ │
+│  │     lifecycle_items table:                                  │ │
+│  │     ┌─────────────────────────────────────────────────────┐ │ │
+│  │     │ Column        │ Type        │ Notes                 │ │ │
+│  │     ├─────────────────────────────────────────────────────┤ │ │
+│  │     │ id            │ UUID        │ Primary key           │ │ │
+│  │     │ title         │ TEXT        │ Item title            │ │ │
+│  │     │ stage         │ TEXT        │ Enum: idea|build|...  │ │ │
+│  │     │ workflow_id   │ TEXT        │ Group items           │ │ │
+│  │     │ data          │ JSONB       │ Custom data           │ │ │
+│  │     │ metrics       │ JSONB       │ Reserved              │ │ │
+│  │     │ created_at    │ TIMESTAMP   │ Auto-generated        │ │ │
+│  │     │ updated_at    │ TIMESTAMP   │ Auto-generated        │ │ │
+│  │     └─────────────────────────────────────────────────────┘ │ │
+│  │                                                              │ │
+│  │     Indexes:                                                │ │
+│  │     - stage (for filtering by stage)                        │ │
+│  │     - workflow_id (for grouping)                            │ │
+│  │     - created_at (for sorting)                              │ │
+│  │                                                              │ │
+│  │     Row Level Security (RLS):                               │ │
+│  │     - Public access enabled (no auth required for MVP)      │ │
+│  │     - Can be restricted per user later                      │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+│                                                                    │
+│  ┌─────────────────────────────────────────────────────────────┐ │
+│  │     Environment                                             │ │
+│  │     - SUPABASE_URL (project URL)                            │ │
+│  │     - SUPABASE_KEY (anon public key)                        │ │
+│  └─────────────────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────────────────┘
 ```
 
-## Technology Stack
+## Data Flow Diagram
 
-### Frontend: Job-Magician (Next.js)
-
-**Purpose**: Heavy frontend processes, complex UI interactions, and data visualization
-
-**Technology Choices**:
-- **Next.js 15.5+**: React framework with server-side rendering and static site generation
-- **React 19**: Modern UI library with concurrent features
-- **TypeScript**: Type-safe development
-- **Tailwind CSS**: Utility-first styling
-- **Radix UI**: Accessible component primitives
-
-**Why Next.js for Frontend?**
-1. **Performance**: Server-side rendering and static optimization
-2. **Developer Experience**: Hot module replacement, fast refresh
-3. **Ecosystem**: Rich plugin ecosystem and community support
-4. **Rendering Strategies**: SSR, SSG, ISR, and client-side rendering options
-5. **Heavy UI Workloads**: Optimized for complex dashboards and data visualization
-
-### Backend: 360 Magicians (Deno) - In Progress
-
-**Purpose**: Core business logic, API services, data processing
-
-**Technology Choices**:
-- **Deno**: Modern JavaScript/TypeScript runtime
-- **Security First**: Secure by default, explicit permissions
-- **Standard Library**: Built-in utilities, no npm dependencies needed
-- **Modern APIs**: Web-standard APIs (fetch, WebSocket, etc.)
-
-**Why Deno for Backend?**
-1. **Security**: Sandboxed execution with explicit permissions
-2. **Performance**: Rust-based runtime, optimized for speed
-3. **TypeScript Native**: No additional configuration needed
-4. **Standard Library**: Comprehensive, audited standard library
-5. **Modern**: Built for modern web standards
-
-### Integration Strategy
-
-**Frontend ↔ Backend Communication**:
-- **RESTful APIs**: Standard HTTP/HTTPS for CRUD operations
-- **WebSocket**: Real-time updates and notifications
-- **GraphQL** (Future): Flexible data querying
-- **Event-Driven**: Asynchronous messaging for background tasks
-
-## Deployment Architecture
-
-### Standalone Deployment Model
-
-Job-Magician uses Next.js standalone output for production:
+### Create Item Flow
 
 ```
-┌────────────────────────────────────────────┐
-│           Production Deployment             │
-├────────────────────────────────────────────┤
-│                                             │
-│  ┌─────────────────────────────────────┐  │
-│  │  Reverse Proxy / Load Balancer      │  │
-│  │  (nginx, Caddy, or Cloud LB)        │  │
-│  └─────────────────────────────────────┘  │
-│                    │                        │
-│                    ▼                        │
-│  ┌─────────────────────────────────────┐  │
-│  │  Next.js Standalone Server          │  │
-│  │  (node .next/standalone/server.js)  │  │
-│  └─────────────────────────────────────┘  │
-│                    │                        │
-│                    ▼                        │
-│  ┌─────────────────────────────────────┐  │
-│  │  Deno Backend Services              │  │
-│  │  (API, Business Logic, Data)        │  │
-│  └─────────────────────────────────────┘  │
-│                    │                        │
-│                    ▼                        │
-│  ┌─────────────────────────────────────┐  │
-│  │  Database & Storage                 │  │
-│  │  (PostgreSQL, Redis, S3-compatible) │  │
-│  └─────────────────────────────────────┘  │
-└────────────────────────────────────────────┘
+User Types Title
+        ↓
+   [Input Component]
+        ↓
+   [handleCreate()]
+        ↓
+   POST /api/lifecycle/create
+   {title: "New Item", workflow_id: "default", data: {}}
+        ↓
+   [Backend: FastAPI]
+   - Validate request (Pydantic)
+   - Connect to Supabase
+   - Insert into lifecycle_items table
+   - Return inserted item
+        ↓
+   [Frontend: React]
+   - Update local state
+   - Call load() to refresh list
+   - Clear input field
+        ↓
+   GET /api/lifecycle/list
+        ↓
+   [Backend: FastAPI]
+   - Query lifecycle_items table
+   - Sort by created_at DESC
+   - Return array of items
+        ↓
+   [Frontend: React]
+   - setItems(data)
+   - Component re-renders with new item
+        ↓
+   Item appears on screen with stage buttons
 ```
 
-### Deployment Options
-
-#### 1. Self-Hosted Infrastructure
-- Virtual Private Servers (VPS)
-- Dedicated servers
-- On-premises data centers
-- Full control over infrastructure
-
-#### 2. Cloud Platforms
-- **AWS**: EC2, ECS, Lambda@Edge
-- **Google Cloud**: Compute Engine, Cloud Run, App Engine
-- **Azure**: Virtual Machines, App Service, Container Instances
-- **DigitalOcean**: Droplets, App Platform
-
-#### 3. Container Platforms
-- **Docker**: Containerized deployment
-- **Kubernetes**: Orchestrated, scalable deployments
-- **Docker Swarm**: Lightweight orchestration
-- **Nomad**: Alternative orchestration
-
-#### 4. Edge Computing
-- **Cloudflare Workers**: Edge compute
-- **Fastly Compute**: Edge processing
-- **Akamai EdgeWorkers**: CDN edge compute
-
-## Data Flow
-
-### Client Request Flow
+### Update Stage Flow
 
 ```
-User Browser
-    │
-    ▼
-Next.js Frontend (Job-Magician)
-    │
-    ├─► Static Assets (Cached)
-    │
-    ├─► Server-Side Rendering
-    │   │
-    │   ▼
-    │   Deno Backend API
-    │       │
-    │       ├─► Database Queries
-    │       ├─► External API Calls (TWS)
-    │       └─► Business Logic Processing
-    │
-    └─► Client-Side Interactions
-        │
-        ▼
-        API Routes (Next.js)
-            │
-            ▼
-            Deno Backend Services
+User Clicks Stage Button
+        ↓
+   [onClick Handler]
+   handleUpdateStage(itemId, newStage)
+        ↓
+   POST /api/lifecycle/update-stage
+   {id: "uuid", stage: "build"}
+        ↓
+   [Backend: FastAPI]
+   - Validate request
+   - Update where id = provided_id
+   - Set stage = provided_stage
+   - Return updated item
+        ↓
+   [Frontend: React]
+   - Call load() to refresh
+        ↓
+   GET /api/lifecycle/list (same as above)
+        ↓
+   Item's color changes based on new stage
+   Button for current stage becomes highlighted
 ```
 
-### Authentication Flow
+## Technology Stack Details
+
+### Frontend
+- **Framework**: Next.js 16 (App Router)
+- **Runtime**: React 19
+- **Language**: TypeScript
+- **Styling**: Inline CSS (no CSS framework, minimal)
+- **State**: React hooks (useState, useEffect)
+- **API**: Fetch API (no external HTTP library)
+
+### Backend
+- **Framework**: FastAPI
+- **Server**: Uvicorn (ASGI)
+- **Language**: Python 3.9+
+- **Validation**: Pydantic
+- **Database Driver**: Supabase Python SDK
+
+### Database
+- **Platform**: Supabase (managed PostgreSQL)
+- **ORM**: None (raw SQL queries)
+- **Auth**: RLS (Row Level Security, not auth in MVP)
+- **Backups**: Automatic (Supabase feature)
+
+### Deployment
+- **Platform**: Vercel
+- **Services**: Multi-service setup (frontend + backend)
+- **Config**: vercel.json with experimentalServices
+- **Env Vars**: SUPABASE_URL, SUPABASE_KEY
+
+## Lifecycle Stages
 
 ```
-User Login Request
-    │
-    ▼
-DeafAuth Integration
-    │
-    ├─► Token Generation
-    │
-    ▼
-Session Management
-    │
-    ├─► JWT Tokens
-    ├─► Secure Cookies
-    └─► Role-Based Access Control
+idea → build → grow → managed → sunset
+ ↓      ↓       ↓       ↓         ↓
+🔵     🟡      🔵      🟢        🔴
+
+Colors in UI:
+idea    = Gray (#e0e0e0)
+build   = Yellow (#ffeb99)
+grow    = Blue (#99ccff)
+managed = Green (#99ff99)
+sunset  = Red (#ff9999)
 ```
 
-## Scalability
-
-### Horizontal Scaling
-
-- **Frontend**: Multiple Next.js instances behind load balancer
-- **Backend**: Deno services can scale independently
-- **Database**: Read replicas, sharding strategies
-- **Caching**: Redis/Memcached for session and data caching
-
-### Vertical Scaling
-
-- **CPU**: Enhanced processing for data-heavy operations
-- **Memory**: Increased RAM for caching and concurrent users
-- **Storage**: SSD for faster data access
-
-### Caching Strategy
-
-1. **Static Assets**: CDN caching (CloudFlare, CloudFront)
-2. **API Responses**: Redis caching with TTL
-3. **Database Queries**: Query result caching
-4. **Session Data**: In-memory or Redis session store
-
-## Security Architecture
-
-### Defense in Depth
+## Error Handling Architecture
 
 ```
-┌─────────────────────────────────────────┐
-│  Layer 1: Network Security              │
-│  - Firewall, DDoS Protection, WAF       │
-├─────────────────────────────────────────┤
-│  Layer 2: Application Security          │
-│  - HTTPS/TLS, CORS, CSP Headers         │
-├─────────────────────────────────────────┤
-│  Layer 3: Authentication & Authorization│
-│  - DeafAuth, JWT, RBAC                  │
-├─────────────────────────────────────────┤
-│  Layer 4: Data Security                 │
-│  - Encryption at Rest, Encrypted Transit│
-├─────────────────────────────────────────┤
-│  Layer 5: Monitoring & Logging          │
-│  - Audit Logs, Intrusion Detection      │
-└─────────────────────────────────────────┘
+Frontend
+├── Network errors: Caught by .catch(), displayed to user
+├── Validation errors: Check input before API call
+└── API errors: Parse .detail from response
+
+Backend
+├── Request validation: Pydantic automatic validation
+├── Database errors: Caught in try/except, return 400/500
+└── Missing config: Check env vars at startup
+
+Supabase
+├── SQL errors: Propagate to backend error handler
+├── RLS violations: Return 403 (not applicable in MVP)
+└── Connection errors: Return 500 from backend
 ```
 
-### Security Measures
+## Scalability Notes
 
-- **Input Validation**: Server-side validation for all inputs
-- **Output Encoding**: XSS prevention
-- **SQL Injection Prevention**: Parameterized queries, ORM
-- **CSRF Protection**: Token-based protection
-- **Rate Limiting**: API throttling and abuse prevention
-- **Security Headers**: Comprehensive HTTP security headers
+**Current MVP is suitable for:**
+- Personal use / small teams
+- Learning / prototyping
+- Up to ~1000 items (no pagination)
 
-## Performance Optimization
+**For production scaling, add:**
+- [ ] Pagination (limit/offset in API)
+- [ ] Caching (Redis via Upstash)
+- [ ] Full-text search (PostgreSQL FTS)
+- [ ] Pagination indexes on created_at
+- [ ] Connection pooling (via Supabase)
+- [ ] Rate limiting (API Gateway)
+- [ ] Authentication (Supabase Auth)
+- [ ] Audit logging (PostgreSQL triggers)
 
-### Frontend Optimizations
+## File Organization
 
-- **Code Splitting**: Automatic route-based splitting
-- **Image Optimization**: Next.js Image component with lazy loading
-- **Font Optimization**: Next.js Font optimization
-- **Static Generation**: Pre-render pages at build time
-- **Incremental Static Regeneration**: Update static content without full rebuild
+```
+backend/
+├── main.py              ← All FastAPI code (can split later)
+└── pyproject.toml       ← Python dependencies
 
-### Backend Optimizations
+frontend/
+├── app/
+│   ├── layout.tsx       ← Root layout, metadata
+│   ├── page.tsx         ← Home page with link
+│   └── lifecycle/
+│       └── page.tsx     ← Main dashboard (217 lines)
+├── lib/
+│   └── api.ts          ← API client functions (37 lines)
+├── package.json        ← Next.js dependencies
+├── next.config.ts      ← Next.js configuration
+└── tsconfig.json       ← TypeScript configuration
 
-- **Caching**: Multi-level caching strategy
-- **Database Indexing**: Optimized query performance
-- **Connection Pooling**: Efficient database connections
-- **Async Processing**: Background jobs for heavy operations
-- **CDN**: Global content delivery
+Root files:
+├── vercel.json         ← Multi-service configuration
+├── package.json        ← Root scripts (dev, build, start)
+├── supabase.sql        ← Database schema
+├── README.md           ← Full documentation
+├── SETUP.md            ← Setup instructions
+├── QUICKSTART.md       ← Quick start checklist
+├── API.md              ← API reference
+└── ARCHITECTURE.md     ← This file
+```
 
-## Monitoring & Observability
+## Configuration Files
 
-### Metrics to Track
-
-1. **Performance Metrics**:
-   - Response times (p50, p95, p99)
-   - Throughput (requests per second)
-   - Error rates
-   - Resource utilization (CPU, memory, disk)
-
-2. **Business Metrics**:
-   - User registrations
-   - Job applications
-   - Training completions
-   - Placement success rates
-
-3. **Security Metrics**:
-   - Failed authentication attempts
-   - Suspicious activity patterns
-   - Security scan results
-
-### Monitoring Tools
-
-- **Application Performance Monitoring (APM)**: New Relic, Datadog, or self-hosted alternatives
-- **Log Aggregation**: ELK Stack, Loki, or cloud-native logging
-- **Metrics Collection**: Prometheus, Grafana
-- **Uptime Monitoring**: UptimeRobot, Pingdom, or custom solutions
-- **Error Tracking**: Sentry, Rollbar, or similar
-
-## Disaster Recovery
-
-### Backup Strategy
-
-- **Database Backups**: Automated daily backups with point-in-time recovery
-- **Code Repository**: Git-based version control with multiple remotes
-- **Configuration**: Infrastructure as Code (IaC) with Terraform or similar
-- **User Data**: Encrypted backups with off-site storage
-
-### Recovery Procedures
-
-1. **Recovery Time Objective (RTO)**: 4 hours
-2. **Recovery Point Objective (RPO)**: 1 hour
-3. **Backup Testing**: Monthly restoration tests
-4. **Incident Response Plan**: Documented procedures for common scenarios
-
-## Future Architecture Considerations
-
-### Planned Enhancements
-
-1. **Microservices**: Break down monolithic backend into services
-2. **Event-Driven Architecture**: Implement message queue (RabbitMQ, NATS)
-3. **GraphQL**: Add GraphQL layer for flexible data queries
-4. **AI/ML Integration**: Real-time job matching and recommendations
-5. **Mobile Applications**: Native iOS/Android with shared backend
-6. **Progressive Web App (PWA)**: Enhanced mobile web experience
-
-### Integration Roadmap
-
-- **VR4Deaf**: Enhanced sign language video integration
-- **PinkSync**: Real-time collaboration features
-- **DeafAuth**: Single sign-on across 360 Magicians ecosystem
-- **AI Agents**: Intelligent automation for case management
-
-## Development Guidelines
-
-### Local Development
-
-```bash
-# Frontend (Next.js)
-npm install
-npm run dev  # http://localhost:3000
-
-# Backend (Deno) - when available
-deno run --allow-net --allow-read server.ts
+### vercel.json (Multi-Service Setup)
+```json
+{
+  "experimentalServices": {
+    "backend": {
+      "entrypoint": "backend/main.py",
+      "routePrefix": "/api"
+    },
+    "frontend": {
+      "entrypoint": "frontend/next.config.ts"
+    }
+  }
+}
 ```
 
 ### Environment Variables
-
-```bash
-# Frontend (.env.local)
-NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_APP_NAME=Job-Magician
-
-# Backend (.env)
-DATABASE_URL=postgresql://...
-REDIS_URL=redis://...
-JWT_SECRET=...
+```
+SUPABASE_URL=https://xxx.supabase.co
+SUPABASE_KEY=your_anon_key
 ```
 
-### Code Organization
+Both set in v0 project settings → Vars
 
+## Database Schema
+
+Single table, fully normalized for this MVP:
+
+```sql
+create table lifecycle_items (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  stage text default 'idea',
+  workflow_id text default 'default',
+  data jsonb default '{}',
+  metrics jsonb default '{}',
+  created_at timestamp default now(),
+  updated_at timestamp default now()
+);
 ```
-job-magician/
-├── app/              # Next.js app directory
-├── components/       # React components
-├── lib/             # Utility functions
-├── public/          # Static assets
-├── styles/          # Global styles
-├── types/           # TypeScript types
-└── docs/            # Documentation
-```
 
-## Contribution Guidelines
+For future use:
+- `metrics` field reserved for: time_in_stage, transition_count, etc.
+- `data` field for: custom attributes, team assignment, priority, etc.
+- `workflow_id` field for: grouping items in different workflows
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines on:
-- Code style and standards
-- Testing requirements
-- Pull request process
-- Security considerations
+## Next Steps for Enhancement
 
-## References
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Deno Documentation](https://deno.land/manual)
-- [360 Magicians Platform](https://github.com/MBTQ-dev/Magician_Platform)
-- [VR4Deaf Architecture](https://github.com/pinkycollie/vr4deaf)
-
----
-
-**Last Updated**: December 2025  
-**Architecture Version**: 1.0
+1. **Add User Auth** → Supabase Auth + RLS policies
+2. **Add Filtering** → GET /lifecycle/list?stage=build&workflow_id=feature_xyz
+3. **Add Pagination** → GET /lifecycle/list?limit=10&offset=0
+4. **Add Search** → GET /lifecycle/list?search=keyword
+5. **Add AI** → POST /lifecycle/suggest-stage calls Claude API
+6. **Add Webhooks** → Notify external services on stage changes
+7. **Add Metrics** → Track time in each stage, transition patterns
+8. **Add Real-time** → WebSocket for live updates across clients

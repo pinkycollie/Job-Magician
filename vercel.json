@@ -1,0 +1,11 @@
+{
+  "experimentalServices": {
+    "backend": {
+      "entrypoint": "backend/main.py",
+      "routePrefix": "/api"
+    },
+    "frontend": {
+      "entrypoint": "frontend/next.config.ts"
+    }
+  }
+}
